@@ -17,12 +17,13 @@ class Stack
 			cout<<"its full"<<endl;
 			return;
 		}
-		s[top].visited=t.visited;
-		s[top].up=t.up;
-		s[top].right=t.right;
-		s[top].down=t.down;
-		s[top].left=t.left;
-		s[top].err=0;
+		s[top]=t;
+		//s[top].visited=t.visited;
+		//s[top].up=t.up;
+		//s[top].right=t.right;
+		//s[top].down=t.down;
+		//s[top].left=t.left;
+		//s[top].err=0;
 		top++;
 	}
 	Node pop()
