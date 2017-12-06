@@ -10,6 +10,7 @@ class Heap
 	}
 	void push(Node t)
 	{
+		cout<<"push"<<endl;
 		if(top==maxelem)
 		{
 			cout<<"full"<<endl;
@@ -28,8 +29,10 @@ class Heap
 	}
 	Node pop()
         {
+		cout<<"pop"<<endl;
 		if(top==0)
 		{
+			cout<<"nothing to pop"<<endl;
 			Node a;
 			a.err=1;
 			return a;
@@ -42,11 +45,12 @@ class Heap
 		h[0]=h[top-1];
 		top--;
 		heapify(0);
-
+		return root;
 	}
 	void heapify(short i)
 	{
-		short s;
+		cout<<"heapify"<<endl;
+		short s=i;
 		if((2*i+1)<top&&(h[2*i+1].g+h[2*i+1].h)<(h[i].g+h[i].h))
 		{
 			s=2*i+1;
@@ -58,6 +62,8 @@ class Heap
 		if(s!=i)
 		{
 			Node temp=h[i];
+			short g=temp.g;
+			short g2=h[i].g;
 			h[i]=h[s];
 			h[s]=temp;
 			heapify(s);
@@ -78,12 +84,20 @@ class Heap
 	}
 //	short size()
 //	{
-//		if (top==0)
-//		{
-//			return 0;
-//		}
 //		return top;
 //	}
+	void remove(short x,short y)
+	{
+		for(short i=0;i<top;i++)
+		{
+			if(h[i].x==x&&h[i].y==y)
+			{
+				h[i]=h[--top];
+				heapify(0);
+				return;
+			}
+		}
+	}
 	bool empty()
 	{
 		return top==0;  
