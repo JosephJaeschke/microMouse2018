@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 #include "Stack.h"
 #include "Heap.h"
 #include "Node.h"
@@ -39,9 +40,29 @@ void init()
 			grid[i][j].y=j;
 		}
 	}
+	//add testing maze (hopefully not manually)
+	grid[0][0].up=1;
+	grid[0][0].left=1;
+	grid[0][0].right=1;
+	grid[0][0].down=1;
+	grid[0][1].left=1;
+	grid[0][1].right=1;
+	grid[0][2].left=1;
+	grid[0][2].right=1;
+	grid[0][3].left=1;
+	grid[0][3].down=1;
+	grid[1][3].right=1;
+	grid[1][3].down=1;
+	grid[1][2].left=1;
+	grid[1][2].right=1;
+	grid[1][1].left=1;
+	grid[1][1].right=1;
+	grid[0][1].left=1;
+	grid[0][1].up=1;
+	grid[0][1].right=1;
 }
 
-void setSpace(char row,char col)
+void setSpace(short row,short col)
 {
 	//SENSOR STUFF
 	return;
@@ -49,38 +70,42 @@ void setSpace(char row,char col)
 
 void dfsR(short r,short c)
 {
+	cout<<"-dfsR-"<<endl;
+	cout<<"r:"<<r<<" c:"<<c<<endl;
+	bool b=grid[r][c].up;
+	cout<<"up: "<<b<<endl;
 	grid[r][c].visited=1;
-	//setMapSpace(r,c);
+	setSpace(r,c);
 	if(grid[r][c].up==0&&grid[r-1][c].visited==0)
 	{
-			//moveUp()
-			facing='u';
-			dfsR(r-1,c);
-			//moveDown();
-			facing='d';
+		moveUp();
+		facing='u';
+		dfsR(r-1,c);
+		moveDown();
+		facing='d';
 	}
 	if(grid[r][c].right==0&&grid[r][c+1].visited==0)
 	{
-		//moveRight();
+		moveRight();
 		facing='r';
 		dfsR(r,c+1);
-		//moveLeft();
+		moveLeft();
 		facing='l';
 	}
 	if(grid[r][c].down==0&&grid[r+1][c].visited==0)
 	{
-		//moveDown()
+		moveDown();
 		facing='d';
 		dfsR(r+1,c);
-		//moveUp()
+		moveUp();
 		facing='u';
 	}
 	if(grid[r][c].left==0&&grid[r][c-1].visited==0)
 	{
-		//moveLeft()
+		moveLeft();
 		facing='l';
 		dfsR(r,c-1);
-		//moveRight();
+		moveRight();
 		facing='r';
 	}
 
@@ -114,9 +139,10 @@ void dfs()
 }
 */
 
-char* astar()
+Node astar()
 {
-	char* path;
+	cout<<"-astar-"<<endl;
+	Node end;
 	grid[0][0].g=0;
 	Heap fringe;
 	fringe.push(grid[0][0]);
@@ -126,55 +152,56 @@ char* astar()
 		if((n.x==7&&n.y==7)||(n.x==7&&n.y==8)||(n.x==8&&n.y==7)||(n.x==8&&n.y==8))
 		{
 			//found path
+			return n;
 		}
 		grid[n.x][n.y].visited=1;
-		//for each neighbor
-		if(n.x-1>0&&grid[n.x-1][n.y].visited==0)
+		for(short i=-1;i<2;i++)
 		{
-			if(!fringe.contains(n.x-1,n.y))
+			for(short j=-1;j<2;j++)
 			{
-				grid[n.x-1][n.y].g=32767;
-				grid[n.x-1][n.y].py=-1;
-				grid[n.x-1][n.y].px=-1;
-			}
-			//update vertex
-			if(grid[n.x][n.y].g+1<grid[n.x-1][n.y].g)
-			{
-				grid[n.x-1][n.y].g=grid[n.x][n.y].g+1;
-				grid[n.x-1][n.y].px=n.x;
-				grid[n.x-1][n.y].py=n.y;
-				if(fringe.contains(n.x-1,n.y))
+				if(i-j!=1||i-j!=-1)
 				{
-					//not finished
-					return path;
+					continue;
+				}
+				if(n.x+i>0&&n.y+j>0&&n.x+i<16&&n.y+j<16&&grid[n.x+i][n.y+j].visited==0)
+				{
+					if(!fringe.contains(n.x+i,n.y+j))
+					{
+						grid[n.x+i][n.y+j].g=32767;
+						grid[n.x+i][n.y+j].py=-1;
+						grid[n.x+i][n.y+j].px=-1;
+					}
+					//update vertex
+					if(grid[n.x][n.y].g+1<grid[n.x+i][n.y+j].g)
+					{
+						grid[n.x+i][n.y+j].g=grid[n.x][n.y].g+1;
+						grid[n.x+i][n.y+j].h=abs(n.x+i-7.5)+abs(n.y+j-7.5);
+						grid[n.x+i][n.y+j].px=n.x;
+						grid[n.x+i][n.y+j].py=n.y;
+						if(fringe.contains(n.x+i,n.y+j))
+						{
+							fringe.remove(n.x+i,n.y+j);
+						}
+						fringe.push(grid[n.x+i][n.y+j]);
+					}
 				}
 			}
 		}
 	}
-	return path;	
+	return end;	
+}
+
+char* buildPath(Node end)
+{
+
+	
 }
 
 int main()
 {
-	Stack stack;	
-	grid[0][1].visited=26;
-	stack.push(grid[0][1]);
-	Node p=stack.pop();
-	cout<<"poped vis: "<<p.visited<<endl;
-	cout<<"poped err: "<<p.err<<endl;
-	p=stack.pop();
-	cout<<"poped vis: "<<p.visited<<endl;
-	cout<<"poped err: "<<p.err<<endl;
-	//int b=stack.size();
-	//cout<<"size: "<<b<<endl;
-	//dfs(1,1);
-	for(int i=0;i<16;i++)
-	{
-		for(int j=0;j<16;j++)
-		{
-	//		cout<<"UP: "<<grid[i][j]<<endl;
-		}
-	}
+	init();
+	dfsR(0,0);
+	astar();
 	return 0;	
 }
 
