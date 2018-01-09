@@ -30,21 +30,29 @@ void moveLeft()
 	return;
 }
 
+void printWalls(short r,short c)
+{
+	cout<<"---"<<endl;
+	cout<<"up:"<<grid[r][c].up<<endl;
+	cout<<"right:"<<grid[r][c].right<<endl;
+	cout<<"down:"<<grid[r][c].down<<endl;
+	cout<<"left:"<<grid[r][c].left<<endl;
+}
+
 void init()
 {
 	for(short i=0;i<16;i++)
 	{
 		for(short j=0;j<16;j++)
 		{
-			grid[i][j].x=i;
-			grid[i][j].y=j;
+			grid[i][j].x=j;
+			grid[i][j].y=i;
 		}
 	}
 	//add testing maze (hopefully not manually)
 	grid[0][0].up=1;
 	grid[0][0].left=1;
 	grid[0][0].right=1;
-	grid[0][0].down=1;
 	grid[0][1].left=1;
 	grid[0][1].right=1;
 	grid[0][2].left=1;
@@ -57,9 +65,17 @@ void init()
 	grid[1][2].right=1;
 	grid[1][1].left=1;
 	grid[1][1].right=1;
-	grid[0][1].left=1;
-	grid[0][1].up=1;
-	grid[0][1].right=1;
+	grid[1][0].left=1;
+	grid[1][0].up=1;
+	grid[1][0].right=1;
+	for(short i=0;i<4;i++)
+	{
+		for(short j=0;j<2;j++)
+		{
+	//		cout<<"("<<j<<","<<i<<")"<<endl;
+	//		printWalls(j,i);
+		}
+	}
 }
 
 void setSpace(short row,short col)
@@ -68,16 +84,17 @@ void setSpace(short row,short col)
 	return;
 }
 
-void dfsR(short r,short c)
+void dfsR(short c,short r)
 {
-	cout<<"-dfsR-"<<endl;
-	cout<<"r:"<<r<<" c:"<<c<<endl;
+	cout<<"***dfsR***"<<endl;
+	cout<<"("<<r<<","<<c<<")"<<endl;
 	bool b=grid[r][c].up;
-	cout<<"up: "<<b<<endl;
 	grid[r][c].visited=1;
 	setSpace(r,c);
+	printWalls(r,c);
 	if(grid[r][c].up==0&&grid[r-1][c].visited==0)
 	{
+		cout<<"*move up"<<endl;
 		moveUp();
 		facing='u';
 		dfsR(r-1,c);
@@ -86,6 +103,7 @@ void dfsR(short r,short c)
 	}
 	if(grid[r][c].right==0&&grid[r][c+1].visited==0)
 	{
+		cout<<"*move right"<<endl;
 		moveRight();
 		facing='r';
 		dfsR(r,c+1);
@@ -94,6 +112,7 @@ void dfsR(short r,short c)
 	}
 	if(grid[r][c].down==0&&grid[r+1][c].visited==0)
 	{
+		cout<<"*move down"<<endl;
 		moveDown();
 		facing='d';
 		dfsR(r+1,c);
@@ -102,6 +121,7 @@ void dfsR(short r,short c)
 	}
 	if(grid[r][c].left==0&&grid[r][c-1].visited==0)
 	{
+		cout<<"*move left"<<endl;
 		moveLeft();
 		facing='l';
 		dfsR(r,c-1);
@@ -201,7 +221,7 @@ int main()
 {
 	init();
 	dfsR(0,0);
-	astar();
+//	astar();
 	return 0;	
 }
 
