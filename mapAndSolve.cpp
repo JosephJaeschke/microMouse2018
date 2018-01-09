@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <iostream>
 #include <cmath>
 #include "Stack.h"
@@ -45,8 +46,8 @@ void init()
 	{
 		for(short j=0;j<16;j++)
 		{
-			grid[i][j].x=j;
-			grid[i][j].y=i;
+			grid[i][j].x=i;
+			grid[i][j].y=j;
 		}
 	}
 	//add testing maze (hopefully not manually)
@@ -84,7 +85,7 @@ void setSpace(short row,short col)
 	return;
 }
 
-void dfsR(short c,short r)
+void dfsR(short r,short c,short count)
 {
 	cout<<"***dfsR***"<<endl;
 	cout<<"("<<r<<","<<c<<")"<<endl;
@@ -92,39 +93,45 @@ void dfsR(short c,short r)
 	grid[r][c].visited=1;
 	setSpace(r,c);
 	printWalls(r,c);
-	if(grid[r][c].up==0&&grid[r-1][c].visited==0)
+	if(count>8)
+	{
+		cout<<"oh my goooodnesssss"<<endl;
+		exit(0);
+	}
+	count++;
+	if(grid[r][c].up==0&&grid[r][c-1].visited==0)
 	{
 		cout<<"*move up"<<endl;
 		moveUp();
 		facing='u';
-		dfsR(r-1,c);
+		dfsR(r,c-1,count);
 		moveDown();
 		facing='d';
 	}
-	if(grid[r][c].right==0&&grid[r][c+1].visited==0)
+	if(grid[r][c].right==0&&grid[r+1][c].visited==0)
 	{
 		cout<<"*move right"<<endl;
 		moveRight();
 		facing='r';
-		dfsR(r,c+1);
+		dfsR(r+1,c,count);
 		moveLeft();
 		facing='l';
 	}
-	if(grid[r][c].down==0&&grid[r+1][c].visited==0)
+	if(grid[r][c].down==0&&grid[r][c+1].visited==0)
 	{
 		cout<<"*move down"<<endl;
 		moveDown();
 		facing='d';
-		dfsR(r+1,c);
+		dfsR(r,c+1,count);
 		moveUp();
 		facing='u';
 	}
-	if(grid[r][c].left==0&&grid[r][c-1].visited==0)
+	if(grid[r][c].left==0&&grid[r-1][c].visited==0)
 	{
 		cout<<"*move left"<<endl;
 		moveLeft();
 		facing='l';
-		dfsR(r,c-1);
+		dfsR(r-1,c,count);
 		moveRight();
 		facing='r';
 	}
@@ -220,7 +227,7 @@ char* buildPath(Node end)
 int main()
 {
 	init();
-	dfsR(0,0);
+	dfsR(0,0,0);
 //	astar();
 	return 0;	
 }
