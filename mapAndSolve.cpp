@@ -130,7 +130,6 @@ void init()
 		}
 	}
 	//add testing maze (hopefully not manually)
-	/*
 	grid[0][0].up=1;
 	grid[0][0].left=1;
 	grid[0][0].right=1;
@@ -149,8 +148,7 @@ void init()
 	grid[1][0].left=1;
 	grid[1][0].up=1;
 	grid[1][0].right=1;
-	*/
-	
+/*	
 	grid[0][0].up=1;
 	grid[0][0].right=1;
 	grid[0][0].left=1;
@@ -168,7 +166,7 @@ void init()
 	grid[2][0].left=1;
 	grid[2][1].right=1;
 	grid[2][2].right=1;
-	grid[2][2].down=1;
+	grid[2][2].down=1;*/
 }
 
 void reset()
@@ -229,37 +227,33 @@ void dfsR(short r,short c)
 void dfs()
 {
 	Stack s;
-	grid[0][0].visited=1;
-	s.push(grid[0][1]);
-	s.push(grid[1][0]);
+	s.push(grid[0][0]);
 	while(s.empty()!=true)
 	{
 		Node curr=s.pop();
-		if(curr.x+1<16&&curr.x+1>=0&&curr.y<16&&curr.y>=0&&grid[curr.x+1][curr.y].visited==0)
+		cout<<"("<<curr.x<<","<<curr.y<<")"<<endl;
+		grid[curr.x][curr.y].visited=1;
+		if(curr.x+1<16&&curr.x+1>=0&&curr.y<16&&curr.y>=0&&grid[curr.x+1][curr.y].visited==0&&grid[curr.x][curr.y].right==0)
 		{
 			s.push(grid[curr.x+1][curr.y]);
-			grid[curr.x+1][curr.y].visited=1;
 			grid[curr.x+1][curr.y].px=curr.x;
 			grid[curr.x+1][curr.y].py=curr.y;
 		}
-		if(curr.x<16&&curr.x>=0&&curr.y+1<16&&curr.y+1>=0&&grid[curr.x][curr.y+1].visited==0)
+		if(curr.x<16&&curr.x>=0&&curr.y+1<16&&curr.y+1>=0&&grid[curr.x][curr.y+1].visited==0&&grid[curr.x][curr.y].down==0)
 		{
 			s.push(grid[curr.x][curr.y+1]);
-			grid[curr.x][curr.y+1].visited=1;
 			grid[curr.x][curr.y+1].px=curr.x;
 			grid[curr.x][curr.y+1].py=curr.y;
 		}
-		if(curr.x<16&&curr.x>=0&&curr.y-1<16&&curr.y-1>=0&&grid[curr.x][curr.y-1].visited==0)
+		if(curr.x<16&&curr.x>=0&&curr.y-1<16&&curr.y-1>=0&&grid[curr.x][curr.y-1].visited==0&&grid[curr.x][curr.y].up==0)
 		{
 			s.push(grid[curr.x][curr.y-1]);
-			grid[curr.x][curr.y-1].visited=1;
 			grid[curr.x][curr.y-1].px=curr.x;
 			grid[curr.x][curr.y-1].py=curr.y;
 		}
-		if(curr.x-1<16&&curr.x-1>=0&&curr.y<16&&curr.y>=0&&grid[curr.x-1][curr.y].visited==0)
+		if(curr.x-1<16&&curr.x-1>=0&&curr.y<16&&curr.y>=0&&grid[curr.x-1][curr.y].visited==0&&grid[curr.x][curr.y].left==0)
 		{
 			s.push(grid[curr.x-1][curr.y]);
-			grid[curr.x-1][curr.y].visited=1;
 			grid[curr.x-1][curr.y].px=curr.x;
 			grid[curr.x-1][curr.y].py=curr.y;
 		}
@@ -277,7 +271,7 @@ Node astar()
 	{
 		Node n=fringe.pop();
 		cout<<"("<<n.x<<","<<n.y<<")"<<endl;
-		if(/*(n.x==7&&n.y==7)||(n.x==7&&n.y==8)||(n.x==8&&n.y==7)||(n.x==8&&n.y==8)*/n.x==1&&n.y==2)
+		if(/*(n.x==7&&n.y==7)||(n.x==7&&n.y==8)||(n.x==8&&n.y==7)||(n.x==8&&n.y==8)*/n.x==1&&n.y==0)
 		{
 			//found path
 			cout<<"FOUND PATH!!!"<<endl;
@@ -321,7 +315,7 @@ Node astar()
 					if(grid[n.x][n.y].g+1<grid[n.x+i][n.y+j].g)
 					{
 						grid[n.x+i][n.y+j].g=grid[n.x][n.y].g+1;
-/*THIS LINE HAS HEURISTIC*/			grid[n.x+i][n.y+j].h=abs(n.x+i-1)+abs(n.y+j-2);
+/*THIS LINE HAS HEURISTIC*/			grid[n.x+i][n.y+j].h=abs(n.x+i-1)+abs(n.y+j);
 						grid[n.x+i][n.y+j].px=n.x;
 						grid[n.x+i][n.y+j].py=n.y;
 						if(fringe.contains(n.x+i,n.y+j))
