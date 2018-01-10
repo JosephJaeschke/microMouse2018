@@ -11,23 +11,85 @@ Node grid[16][16]={};
 char facing='u'; //facing up default
 //up=u,right=r,down=d,left=l
 
+void turnCW()
+{
+	return;
+}
+
+void turnCCW()
+{
+	return;
+}
+
 void moveUp()
 {
+	if(facing=='r')
+	{
+		turnCW();
+	}
+	else if(facing=='d')
+	{
+		turnCW();
+		turnCW();
+	}
+	else if(facing=='l')
+	{
+		turnCCW();
+	}
 	return;
 }
 
 void moveRight()
 {
+	if(facing=='u')
+	{
+		turnCW();
+	}
+	else if(facing=='d')
+	{
+		turnCCW();
+	}
+	else if(facing=='l')
+	{
+		turnCW();
+		turnCW();
+	}
 	return;
 }
 
 void moveDown()
 {
+	if(facing=='u')
+	{
+		turnCW();
+		turnCW();
+	}
+	else if(facing=='r')
+	{
+		turnCW();
+	}
+	else if(facing=='l')
+	{
+		turnCCW();
+	}
 	return;
 }
 
 void moveLeft()
 {
+	if(facing=='u')
+	{
+		turnCCW();
+	}
+	else if(facing=='r')
+	{
+		turnCW();
+		turnCW();
+	}
+	else if(facing=='d')
+	{
+		turnCW();
+	}
 	return;
 }
 
