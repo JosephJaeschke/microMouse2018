@@ -226,33 +226,46 @@ void dfsR(short r,short c)
 	}
 }
 
-/*
-list nodes_to_visit = {root};
-while( nodes_to_visit isn't empty ) {
-	  currentnode = nodes_to_visit.take_first();
-	    nodes_to_visit.prepend( currentnode.children );
-	      //do something
-}
-
 void dfs()
 {
 	Stack s;
 	grid[0][0].visited=1;
 	s.push(grid[0][1]);
 	s.push(grid[1][0]);
-	short xold=0;
-	short yold=0;
 	while(s.empty()!=true)
 	{
 		Node curr=s.pop();
-		
-
-
-	
+		if(curr.x+1<16&&curr.x+1>=0&&curr.y<16&&curr.y>=0&&grid[curr.x+1][curr.y].visited==0)
+		{
+			s.push(grid[curr.x+1][curr.y]);
+			grid[curr.x+1][curr.y].visited=1;
+			grid[curr.x+1][curr.y].px=curr.x;
+			grid[curr.x+1][curr.y].py=curr.y;
+		}
+		if(curr.x<16&&curr.x>=0&&curr.y+1<16&&curr.y+1>=0&&grid[curr.x][curr.y+1].visited==0)
+		{
+			s.push(grid[curr.x][curr.y+1]);
+			grid[curr.x][curr.y+1].visited=1;
+			grid[curr.x][curr.y+1].px=curr.x;
+			grid[curr.x][curr.y+1].py=curr.y;
+		}
+		if(curr.x<16&&curr.x>=0&&curr.y-1<16&&curr.y-1>=0&&grid[curr.x][curr.y-1].visited==0)
+		{
+			s.push(grid[curr.x][curr.y-1]);
+			grid[curr.x][curr.y-1].visited=1;
+			grid[curr.x][curr.y-1].px=curr.x;
+			grid[curr.x][curr.y-1].py=curr.y;
+		}
+		if(curr.x-1<16&&curr.x-1>=0&&curr.y<16&&curr.y>=0&&grid[curr.x-1][curr.y].visited==0)
+		{
+			s.push(grid[curr.x-1][curr.y]);
+			grid[curr.x-1][curr.y].visited=1;
+			grid[curr.x-1][curr.y].px=curr.x;
+			grid[curr.x-1][curr.y].py=curr.y;
+		}
 	}
 	return;
 }
-*/
 
 Node astar()
 {
@@ -384,8 +397,8 @@ void buildPath(Node end)
 int main()
 {
 	init();
-	cout<<"***dfsR***"<<endl;
-	dfsR(0,0);
+	cout<<"***dfs***"<<endl;
+	dfs();
 	reset();
 	cout<<"***astar***"<<endl;
 	buildPath(astar());
