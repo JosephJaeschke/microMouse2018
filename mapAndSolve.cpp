@@ -8,7 +8,7 @@
 using namespace std;
 
 Node grid[16][16]={};
-char facing='u'; //facing up default
+char facing='r'; //facing up default
 //up=u,right=r,down=d,left=l
 
 void moveUp()
@@ -69,12 +69,15 @@ void init()
 	grid[1][0].left=1;
 	grid[1][0].up=1;
 	grid[1][0].right=1;
-	for(short i=0;i<4;i++)
+}
+
+void reset()
+{
+	for(short i=0;i<16;i++)
 	{
-		for(short j=0;j<2;j++)
+		for(short j=0;j<16;j++)
 		{
-	//		cout<<"("<<j<<","<<i<<")"<<endl;
-	//		printWalls(j,i);
+			grid[i][j].visited=0;
 		}
 	}
 }
@@ -85,26 +88,19 @@ void setSpace(short row,short col)
 	return;
 }
 
-void dfsR(short r,short c,short count)
+void dfsR(short r,short c)
 {
-	cout<<"***dfsR***"<<endl;
 	cout<<"("<<r<<","<<c<<")"<<endl;
 	bool b=grid[r][c].up;
 	grid[r][c].visited=1;
 	setSpace(r,c);
-	printWalls(r,c);
-	if(count>8)
-	{
-		cout<<"oh my goooodnesssss"<<endl;
-		exit(0);
-	}
-	count++;
+	//printWalls(r,c);
 	if(grid[r][c].up==0&&grid[r][c-1].visited==0)
 	{
 		cout<<"*move up"<<endl;
 		moveUp();
 		facing='u';
-		dfsR(r,c-1,count);
+		dfsR(r,c-1);
 		moveDown();
 		facing='d';
 	}
@@ -113,7 +109,7 @@ void dfsR(short r,short c,short count)
 		cout<<"*move right"<<endl;
 		moveRight();
 		facing='r';
-		dfsR(r+1,c,count);
+		dfsR(r+1,c);
 		moveLeft();
 		facing='l';
 	}
@@ -122,7 +118,7 @@ void dfsR(short r,short c,short count)
 		cout<<"*move down"<<endl;
 		moveDown();
 		facing='d';
-		dfsR(r,c+1,count);
+		dfsR(r,c+1);
 		moveUp();
 		facing='u';
 	}
@@ -131,7 +127,7 @@ void dfsR(short r,short c,short count)
 		cout<<"*move left"<<endl;
 		moveLeft();
 		facing='l';
-		dfsR(r-1,c,count);
+		dfsR(r-1,c);
 		moveRight();
 		facing='r';
 	}
@@ -168,7 +164,6 @@ void dfs()
 
 Node astar()
 {
-	cout<<"-astar-"<<endl;
 	Node end;
 	grid[0][0].g=0;
 	Heap fringe;
@@ -176,9 +171,11 @@ Node astar()
 	while(fringe.empty()!=true)
 	{
 		Node n=fringe.pop();
-		if((n.x==7&&n.y==7)||(n.x==7&&n.y==8)||(n.x==8&&n.y==7)||(n.x==8&&n.y==8))
+		cout<<"("<<n.x<<","<<n.y<<")"<<endl;
+		if(/*(n.x==7&&n.y==7)||(n.x==7&&n.y==8)||(n.x==8&&n.y==7)||(n.x==8&&n.y==8)*/n.x==1&&n.y==0)
 		{
 			//found path
+			cout<<"FOUND PATH!!!"<<endl;
 			return n;
 		}
 		grid[n.x][n.y].visited=1;
@@ -186,12 +183,29 @@ Node astar()
 		{
 			for(short j=-1;j<2;j++)
 			{
-				if(i-j!=1||i-j!=-1)
+				if(i+j==-2||i+j==0||i+j==2||(i==0&&j==0))
 				{
 					continue;
 				}
-				if(n.x+i>0&&n.y+j>0&&n.x+i<16&&n.y+j<16&&grid[n.x+i][n.y+j].visited==0)
+				cout<<"-("<<n.x+i<<","<<n.y+j<<")"<<endl;
+				if(n.x+i>=0&&n.y+j>=0&&n.x+i<16&&n.y+j<16&&grid[n.x+i][n.y+j].visited==0)
 				{
+					if(i==0&&j==-1&&grid[n.x][n.y].up==1)
+					{
+						continue;
+					}
+					else if(i==1&&j==0&&grid[n.x][n.y].right==1)
+					{
+						continue;
+					}
+					else if(i==0&&j==1&&grid[n.x][n.y].down==1)
+					{
+						continue;
+					}
+					else if(i==-1&&j==0&&grid[n.x][n.y].left==1)
+					{
+						continue;
+					}
 					if(!fringe.contains(n.x+i,n.y+j))
 					{
 						grid[n.x+i][n.y+j].g=32767;
@@ -215,20 +229,29 @@ Node astar()
 			}
 		}
 	}
+	cout<<"no path..."<<endl;
 	return end;	
 }
 
-char* buildPath(Node end)
+void buildPath(Node end)
 {
-
-	
+	Node n=end;
+	cout<<"___PATH___"<<endl;
+	while(n.x!=0||n.y!=0)
+	{
+		cout<<"("<<n.x<<","<<n.y<<")"<<endl;
+		n=grid[n.px][n.py];
+	}
 }
 
 int main()
 {
 	init();
-	dfsR(0,0,0);
-//	astar();
+	cout<<"***dfsR***"<<endl;
+	dfsR(0,0);
+	reset();
+	cout<<"***astar***"<<endl;
+	buildPath(astar());
 	return 0;	
 }
 
