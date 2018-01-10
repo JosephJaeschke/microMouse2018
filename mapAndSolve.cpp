@@ -8,7 +8,7 @@
 using namespace std;
 
 Node grid[16][16]={};
-char facing='r'; //facing up default
+char facing='u'; //facing up default
 //up=u,right=r,down=d,left=l
 
 void moveUp()
@@ -51,6 +51,7 @@ void init()
 		}
 	}
 	//add testing maze (hopefully not manually)
+	/*
 	grid[0][0].up=1;
 	grid[0][0].left=1;
 	grid[0][0].right=1;
@@ -69,6 +70,26 @@ void init()
 	grid[1][0].left=1;
 	grid[1][0].up=1;
 	grid[1][0].right=1;
+	*/
+	
+	grid[0][0].up=1;
+	grid[0][0].right=1;
+	grid[0][0].left=1;
+	grid[0][1].left=1;
+	grid[0][2].down=1;
+	grid[0][2].left=1;
+	grid[1][0].up=1;
+	grid[1][0].right=1;
+	grid[1][0].left=1;
+	grid[1][1].down=1;
+	grid[1][2].up=1;
+	grid[1][2].down=1;
+	grid[2][0].up=1;
+	grid[2][0].right=1;
+	grid[2][0].left=1;
+	grid[2][1].right=1;
+	grid[2][2].right=1;
+	grid[2][2].down=1;
 }
 
 void reset()
@@ -91,7 +112,6 @@ void setSpace(short row,short col)
 void dfsR(short r,short c)
 {
 	cout<<"("<<r<<","<<c<<")"<<endl;
-	bool b=grid[r][c].up;
 	grid[r][c].visited=1;
 	setSpace(r,c);
 	//printWalls(r,c);
@@ -131,7 +151,6 @@ void dfsR(short r,short c)
 		moveRight();
 		facing='r';
 	}
-
 }
 
 /*
@@ -172,7 +191,7 @@ Node astar()
 	{
 		Node n=fringe.pop();
 		cout<<"("<<n.x<<","<<n.y<<")"<<endl;
-		if(/*(n.x==7&&n.y==7)||(n.x==7&&n.y==8)||(n.x==8&&n.y==7)||(n.x==8&&n.y==8)*/n.x==1&&n.y==0)
+		if(/*(n.x==7&&n.y==7)||(n.x==7&&n.y==8)||(n.x==8&&n.y==7)||(n.x==8&&n.y==8)*/n.x==1&&n.y==2)
 		{
 			//found path
 			cout<<"FOUND PATH!!!"<<endl;
@@ -216,7 +235,7 @@ Node astar()
 					if(grid[n.x][n.y].g+1<grid[n.x+i][n.y+j].g)
 					{
 						grid[n.x+i][n.y+j].g=grid[n.x][n.y].g+1;
-						grid[n.x+i][n.y+j].h=abs(n.x+i-7.5)+abs(n.y+j-7.5);
+						grid[n.x+i][n.y+j].h=abs(n.x+i-1)+abs(n.y+j-2);
 						grid[n.x+i][n.y+j].px=n.x;
 						grid[n.x+i][n.y+j].py=n.y;
 						if(fringe.contains(n.x+i,n.y+j))
@@ -237,10 +256,39 @@ void buildPath(Node end)
 {
 	Node n=end;
 	cout<<"___PATH___"<<endl;
-	while(n.x!=0||n.y!=0)
+	char path[100];
+	short i;
+	for(i=0;n.x!=0||n.y!=0;i++)
 	{
+		if(n.x-n.px==-1&&n.y-n.py==0)
+		{
+			path[i]='l';
+		}
+		else if(n.x-n.px==0&&n.y-n.py==-1)
+		{
+			path[i]='u';
+		}
+		else if(n.x-n.px==0&&n.y-n.py==1)
+		{
+			path[i]='d';
+		}
+		else if(n.x-n.px==1&&n.y-n.py==0)
+		{
+			path[i]='r';
+		}
 		cout<<"("<<n.x<<","<<n.y<<")"<<endl;
 		n=grid[n.px][n.py];
+	}
+	short j,temp;
+	for (j=0;j<i/2;++j)
+	{
+		temp=path[i-j-1];
+		path[i-j-1]=path[j];
+		path[j]=temp;
+	}
+	for (j=0;j<i;++j)
+	{
+		cout<<"move "<<path[j]<<endl;
 	}
 }
 
