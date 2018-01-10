@@ -289,6 +289,22 @@ void buildPath(Node end)
 	for (j=0;j<i;++j)
 	{
 		cout<<"move "<<path[j]<<endl;
+		if(path[j]=='u')
+		{
+			moveUp();
+		}
+		else if(path[j]=='r')
+		{
+			moveRight();
+		}
+		else if(path[j]=='d')
+		{
+			moveDown();
+		}
+		else if(path[j]=='l')
+		{
+			moveLeft();
+		}
 	}
 }
 
