@@ -28,6 +28,21 @@ class Stack
 		s[--top].err=0;
 		return s[top];
 	}
+	Node peek()
+        {
+		if (top==0)
+		{
+			Node a;
+			a.err=1;
+			return a;
+		}
+		s[top-1].err=0;
+		return s[top-1];
+	}
+	int size()
+	{
+		return top;
+	}
 	bool empty()
 	{
 		return top==0;  

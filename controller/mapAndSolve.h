@@ -1,4 +1,3 @@
-//#include <iostream>
 #include "Stack.h"
 #include "Heap.h"
 #include "Node.h"
@@ -38,6 +37,7 @@ void moveUp()
 		turnCCW();
 	}
 	moveOne();
+	facing='u';
 	return;
 }
 
@@ -57,6 +57,7 @@ void moveRight()
 		turnCW();
 	}
 	moveOne();
+	facing='r';
 	return;
 }
 
@@ -76,6 +77,7 @@ void moveDown()
 		turnCCW();
 	}
 	moveOne();
+	facing='d';
 	return;
 }
 
@@ -95,17 +97,20 @@ void moveLeft()
 		turnCW();
 	}
 	moveOne();
+	facing='l';
 	return;
 }
 
+/*
 void printWalls(short r,short c)
 {
-//	cout<<"---"<<endl;
-//	cout<<"up:"<<grid[r][c].up<<endl;
-//	cout<<"right:"<<grid[r][c].right<<endl;
-//	cout<<"down:"<<grid[r][c].down<<endl;
-//	cout<<"left:"<<grid[r][c].left<<endl;
+	cout<<"---"<<endl;
+	cout<<"up:"<<grid[r][c].up<<endl;
+	cout<<"right:"<<grid[r][c].right<<endl;
+	cout<<"down:"<<grid[r][c].down<<endl;
+	cout<<"left:"<<grid[r][c].left<<endl;
 }
+*/
 
 void inity()
 {
@@ -118,7 +123,7 @@ void inity()
 		}
 	}
 	//add testing maze (hopefully not manually)
-	/*
+/*
 	grid[0][0].up=1;
 	grid[0][0].left=1;
 	grid[0][0].right=1;
@@ -137,7 +142,7 @@ void inity()
 	grid[1][0].left=1;
 	grid[1][0].up=1;
 	grid[1][0].right=1;
-	*/
+*/
 	
 	grid[0][0].up=1;
 	grid[0][0].right=1;
@@ -157,6 +162,7 @@ void inity()
 	grid[2][1].right=1;
 	grid[2][2].right=1;
 	grid[2][2].down=1;
+
 }
 
 void reset()
@@ -166,88 +172,171 @@ void reset()
 		for(short j=0;j<16;j++)
 		{
 			grid[i][j].visited=0;
+			grid[i][j].px=0;
+			grid[i][j].py=0;
 		}
 	}
 }
 
 void dfsR(short r,short c)
 {
-//	cout<<"("<<r<<","<<c<<")"<<endl;
 	grid[r][c].visited=1;
 	setSpace(r,c);
 	//printWalls(r,c);
 	if(grid[r][c].up==0&&grid[r][c-1].visited==0)
 	{
-//		cout<<"*move up"<<endl;
 		moveUp();
-		facing='u';
 		dfsR(r,c-1);
 		moveDown();
-		facing='d';
 	}
 	if(grid[r][c].right==0&&grid[r+1][c].visited==0)
 	{
-//		cout<<"*move right"<<endl;
 		moveRight();
-		facing='r';
 		dfsR(r+1,c);
 		moveLeft();
-		facing='l';
 	}
 	if(grid[r][c].down==0&&grid[r][c+1].visited==0)
 	{
-//		cout<<"*move down"<<endl;
 		moveDown();
-		facing='d';
 		dfsR(r,c+1);
 		moveUp();
-		facing='u';
 	}
 	if(grid[r][c].left==0&&grid[r-1][c].visited==0)
 	{
-//		cout<<"*move left"<<endl;
 		moveLeft();
-		facing='l';
 		dfsR(r-1,c);
 		moveRight();
-		facing='r';
 	}
 }
 
 void dfs()
 {
 	Stack s;
+	Stack his;
+	Node curr;
 	s.push(grid[0][0]);
 	while(s.empty()!=true)
 	{
-		Node curr=s.pop();
-		cout<<"("<<curr.x<<","<<curr.y<<")"<<endl;
+		curr=s.pop();
+//		cout<<"curr: ("<<curr.x<<","<<curr.y<<")"<<endl;
+		if(curr.x-grid[curr.x][curr.y].px==-1&&grid[curr.x][curr.y].visited!=1)
+		{
+			moveLeft();
+		}
+		else if(curr.x-grid[curr.x][curr.y].px==1&&grid[curr.x][curr.y].visited!=1)
+		{
+			moveRight();
+		}
+		else if(curr.y-grid[curr.x][curr.y].py==1&&grid[curr.x][curr.y].visited!=1)
+		{
+			moveDown();
+		}
+		else if(curr.y-grid[curr.x][curr.y].py==-1&&grid[curr.x][curr.y].visited!=1)
+		{
+			moveUp();
+		}
+		setSpace(curr.x,curr.y);
 		grid[curr.x][curr.y].visited=1;
-		if(curr.x+1<16&&curr.x+1>=0&&curr.y<16&&curr.y>=0&&grid[curr.x+1][curr.y].visited==0&&grid[curr.x][curr.y].right==0)
-		{
-			s.push(grid[curr.x+1][curr.y]);
-			grid[curr.x+1][curr.y].px=curr.x;
-			grid[curr.x+1][curr.y].py=curr.y;
-		}
-		if(curr.x<16&&curr.x>=0&&curr.y+1<16&&curr.y+1>=0&&grid[curr.x][curr.y+1].visited==0&&grid[curr.x][curr.y].down==0)
-		{
-			s.push(grid[curr.x][curr.y+1]);
-			grid[curr.x][curr.y+1].px=curr.x;
-			grid[curr.x][curr.y+1].py=curr.y;
-		}
+		short count=0;
 		if(curr.x<16&&curr.x>=0&&curr.y-1<16&&curr.y-1>=0&&grid[curr.x][curr.y-1].visited==0&&grid[curr.x][curr.y].up==0)
 		{
+//			cout<<"pushed ("<<curr.x<<","<<curr.y-1<<")"<<endl;
 			s.push(grid[curr.x][curr.y-1]);
 			grid[curr.x][curr.y-1].px=curr.x;
 			grid[curr.x][curr.y-1].py=curr.y;
+			count++;
+		}
+		if(curr.x+1<16&&curr.x+1>=0&&curr.y<16&&curr.y>=0&&grid[curr.x+1][curr.y].visited==0&&grid[curr.x][curr.y].right==0)
+		{
+//			cout<<"pushed ("<<curr.x+1<<","<<curr.y<<")"<<endl;
+			s.push(grid[curr.x+1][curr.y]);
+			grid[curr.x+1][curr.y].px=curr.x;
+			grid[curr.x+1][curr.y].py=curr.y;
+			count++;
+		}
+		if(curr.x<16&&curr.x>=0&&curr.y+1<16&&curr.y+1>=0&&grid[curr.x][curr.y+1].visited==0&&grid[curr.x][curr.y].down==0)
+		{
+//			cout<<"pushed ("<<curr.x<<","<<curr.y+1<<")"<<endl;
+			s.push(grid[curr.x][curr.y+1]);
+			grid[curr.x][curr.y+1].px=curr.x;
+			grid[curr.x][curr.y+1].py=curr.y;
+			count++;
 		}
 		if(curr.x-1<16&&curr.x-1>=0&&curr.y<16&&curr.y>=0&&grid[curr.x-1][curr.y].visited==0&&grid[curr.x][curr.y].left==0)
 		{
+//			cout<<"pushed ("<<curr.x-1<<","<<curr.y<<")"<<endl;
 			s.push(grid[curr.x-1][curr.y]);
 			grid[curr.x-1][curr.y].px=curr.x;
 			grid[curr.x-1][curr.y].py=curr.y;
+			count++;
 		}
+		if(count==0&&s.empty()==0) //dead end, retrace steps
+		{
+			Node stop=s.peek();
+			stop=grid[grid[stop.x][stop.y].px][grid[stop.x][stop.y].py];
+			Node temp=curr;
+//			grid[stop.x][stop.y].visited=1;
+//			cout<<"stop: ("<<stop.x<<","<<stop.y<<")"<<endl;
+			//curr=his.pop();
+			while(!(temp.x==grid[stop.x][stop.y].x&&temp.y==grid[stop.x][stop.y].y))
+			{
+				if(temp.x<0||temp.y<0||temp.y>15||temp.x>15)
+				{
+					break;
+				}
+//				cout<<"curr: ("<<temp.x<<","<<temp.y<<")"<<endl;
+				if(temp.x-grid[temp.x][temp.y].px==-1)
+				{
+					moveRight();
+				}
+				else if(temp.x-grid[temp.x][temp.y].px==1)
+				{
+					moveLeft();
+				}
+				else if(temp.y-grid[temp.x][temp.y].py==1)
+				{
+					moveUp();
+				}
+				else if(temp.y-grid[temp.x][temp.y].py==-1)
+				{
+					moveDown();
+				}
+				temp=his.pop();
+			}
+//			cout<<"end curr: ("<<curr.x<<","<<curr.y<<")"<<endl;
+		}
+		his.push(curr);
 	}
+	/*
+	cout<<"end1?"<<endl;
+	//end so go back to start
+//	cout<<"==="<<endl;
+	while(curr.x!=0||curr.y!=0)
+	{
+		cout<<"curr: ("<<curr.x<<","<<curr.y<<")"<<endl;
+		if(curr.x-grid[curr.x][curr.y].px==-1)
+		{
+			cout<<"^move Right"<<endl;
+			moveRight();
+		}
+		else if(curr.x-grid[curr.x][curr.y].px==1)
+		{
+			cout<<"^move Left"<<endl;
+			moveLeft();
+		}
+		else if(curr.y-grid[curr.x][curr.y].py==1)
+		{
+			cout<<"^move Up"<<endl;
+			moveUp();
+		}
+		else if(curr.y-grid[curr.x][curr.y].py==-1)
+		{
+			cout<<"^move Down"<<endl;
+			moveDown();
+		}
+		curr=grid[grid[curr.x][curr.y].px][grid[curr.x][curr.y].py];
+	}
+	*/
 	return;
 }
 
@@ -260,11 +349,10 @@ Node astar()
 	while(fringe.empty()!=true)
 	{
 		Node n=fringe.pop();
-		//cout<<"("<<n.x<<","<<n.y<<")"<<endl;
+//		cout<<"("<<n.x<<","<<n.y<<")"<<endl;
 		if(/*(n.x==7&&n.y==7)||(n.x==7&&n.y==8)||(n.x==8&&n.y==7)||(n.x==8&&n.y==8)*/n.x==1&&n.y==2)
 		{
 			//found path
-//			cout<<"FOUND PATH!!!"<<endl;
 			return n;
 		}
 		grid[n.x][n.y].visited=1;
@@ -318,14 +406,12 @@ Node astar()
 			}
 		}
 	}
-//	cout<<"no path..."<<endl;
 	return end;	
 }
 
 void buildPath(Node end)
 {
 	Node n=end;
-//	cout<<"___PATH___"<<endl;
 	char path[100];
 	short i;
 	for(i=0;n.x!=0||n.y!=0;i++)
@@ -346,7 +432,6 @@ void buildPath(Node end)
 		{
 			path[i]='r';
 		}
-//		cout<<"("<<n.x<<","<<n.y<<")"<<endl;
 		n=grid[n.px][n.py];
 	}
 	short j,temp;
@@ -358,7 +443,6 @@ void buildPath(Node end)
 	}
 	for (j=0;j<i;++j)
 	{
-//		cout<<"move "<<path[j]<<endl;
 		if(path[j]=='u')
 		{
 			moveUp();
@@ -377,15 +461,3 @@ void buildPath(Node end)
 		}
 	}
 }
-/*
-int main()
-{
-	init();
-	cout<<"***dfsR***"<<endl;
-	dfsR(0,0);
-	reset();
-	cout<<"***astar***"<<endl;
-	buildPath(astar());
-	return 0;	
-}
-*/
