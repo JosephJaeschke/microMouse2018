@@ -8,8 +8,17 @@
 
 #include "mapAndSolve.h"
 #include "Sensor.h"
-
 Sensor left,right,front;
+
+float dist[FILTER];
+float dSum=0;
+float dAvg=0;
+int d=0;
+
+float ema_a=0.06;
+int ema_ema =0;
+int ema=0; 
+
 
 void moveOne()
 {
@@ -28,13 +37,25 @@ void turnCCW()
 
 float readIR()
 {
+  int curr=analogRead(IR);
+  ema=ema_func(ema_a,curr,ema);
+  ema_ema=ema_func(ema_a,ema,ema_ema);
+  int DEMA=2*ema-ema_ema;
+  
 //  float temp=dist[d%FILTER];
 //  float curr=analogRead(IR);
 //  dist[d%FILTER]=curr;
-//  dSum+=temp+curr;
+//  dSum+=-temp+curr;
 //  d++;
-//  return dAvg=dSum/FILTER;
+//  dAvg=dSum/FILTER;
+  Serial.print(DEMA);
+  Serial.print("\n");
    
+}
+
+float ema_func(float a,int now,int stored)
+{
+  return (int)(a*now+(1-a)*stored);
 }
 
 float analogToDist()
@@ -51,6 +72,7 @@ void setSpace(short r,short c)
 
 void setup()
 {
+  Serial.begin(9600);
   pinMode(A0,INPUT);
   pinMode(A1,INPUT);
   pinMode(A2,INPUT);
@@ -73,7 +95,7 @@ void setup()
 void loop()
 {
   readIR();
-  delay(28);
+  delay(68);
 //  inity();
 //  dfsR(0,0);
 //  reset();
