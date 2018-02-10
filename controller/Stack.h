@@ -49,7 +49,7 @@ class Stack
 	}
 	private:
 	Node s[100];
-	short top;
-	short maxelem;
+	byte top;
+	byte maxelem;
 };
 

@@ -93,7 +93,7 @@ class Heap
 	}
 	private:
 	Node h[100];
-	short top;
-	short maxelem;
+	byte top;
+	byte maxelem;
 };
 

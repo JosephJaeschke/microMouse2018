@@ -1,4 +1,5 @@
 #define IR A0
+#define FILTER 100
 #define A 0.0001
 #define B -0.0695
 #define C 16.4856
@@ -6,11 +7,9 @@
 //0.0013675  -0.1107223   1.8410242
 
 #include "mapAndSolve.h"
+#include "Sensor.h"
 
-float dist[100];
-int dSum=0;
-float dAvg=0;
-int d=0;
+Sensor left,right,front;
 
 void moveOne()
 {
@@ -29,45 +28,52 @@ void turnCCW()
 
 float readIR()
 {
-  float temp=dist[d%100];
-  float curr=analogRead(IR);
-  dist[d%100]=curr;
-  dSum+=-temp+curr;
-  d++;
-  
-  return dAvg=dSum/100;
-//   dist[d]=input;
-//   if(d==49)
-//   {
-//     d=0;
-//   }
-//   else
-//   {
-//     d++;
-//   }
+//  float temp=dist[d%FILTER];
+//  float curr=analogRead(IR);
+//  dist[d%FILTER]=curr;
+//  dSum+=temp+curr;
+//  d++;
+//  return dAvg=dSum/FILTER;
    
 }
 
 float analogToDist()
 {
- float val=readIR();
- return A*val*val+B*val+C;
+ float i=readIR();
+ return (((((-0.0000000000416*i + 0.0000000938508)*i - 0.0000820544671)*i + 0.0350213702595)*i - 7.4822471184731)*i + 699.9053694888168);
 }
 
 void setSpace(short r,short c)
 {
+  
    return; 
 }
 
 void setup()
 {
   pinMode(A0,INPUT);
+  pinMode(A1,INPUT);
+  pinMode(A2,INPUT);
+  front.pin=0;
+  front.dSum=0;
+  front.dAvg=0;
+  front.dIndex=0;
+  right.pin=1;
+  right.dSum=0;
+  right.dAvg=0;
+  right.dIndex=0;
+  left.pin=2;
+  left.dSum=0;
+  left.dAvg=0;
+  left.dIndex=0;
   return;
+  
 }
 
 void loop()
 {
   readIR();
+  delay(28);
 //  inity();
 //  dfsR(0,0);
 //  reset();

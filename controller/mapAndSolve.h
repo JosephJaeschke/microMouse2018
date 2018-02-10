@@ -12,15 +12,6 @@ void turnCW();
 void turnCCW();
 void setSpace(short row,short col);
 
-short abs(short num)
-{
-	if(num<0)
-	{
-		return -1*num;
-	}
-	return num;
-}
-
 void moveUp()
 {
 	if(facing=='r')
@@ -114,9 +105,9 @@ void printWalls(short r,short c)
 
 void inity()
 {
-	for(short i=0;i<16;i++)
+	for(byte i=0;i<16;i++)
 	{
-		for(short j=0;j<16;j++)
+		for(byte j=0;j<16;j++)
 		{
 			grid[i][j].x=i;
 			grid[i][j].y=j;
@@ -167,9 +158,9 @@ void inity()
 
 void reset()
 {
-	for(short i=0;i<16;i++)
+	for(byte i=0;i<16;i++)
 	{
-		for(short j=0;j<16;j++)
+		for(byte j=0;j<16;j++)
 		{
 			grid[i][j].visited=0;
 			grid[i][j].px=0;
@@ -186,24 +177,28 @@ void dfsR(short r,short c)
 	if(grid[r][c].up==0&&grid[r][c-1].visited==0)
 	{
 		moveUp();
+		setSpace(r,c-1);
 		dfsR(r,c-1);
 		moveDown();
 	}
 	if(grid[r][c].right==0&&grid[r+1][c].visited==0)
 	{
 		moveRight();
+		setSpace(r+1,c);
 		dfsR(r+1,c);
 		moveLeft();
 	}
 	if(grid[r][c].down==0&&grid[r][c+1].visited==0)
 	{
 		moveDown();
+		setSpace(r,c+1);
 		dfsR(r,c+1);
 		moveUp();
 	}
 	if(grid[r][c].left==0&&grid[r-1][c].visited==0)
 	{
 		moveLeft();
+		setSpace(r-1,c);
 		dfsR(r-1,c);
 		moveRight();
 	}
@@ -237,7 +232,7 @@ void dfs()
 		}
 		setSpace(curr.x,curr.y);
 		grid[curr.x][curr.y].visited=1;
-		short count=0;
+		byte count=0;
 		if(curr.x<16&&curr.x>=0&&curr.y-1<16&&curr.y-1>=0&&grid[curr.x][curr.y-1].visited==0&&grid[curr.x][curr.y].up==0)
 		{
 //			cout<<"pushed ("<<curr.x<<","<<curr.y-1<<")"<<endl;
@@ -413,7 +408,7 @@ void buildPath(Node end)
 {
 	Node n=end;
 	char path[100];
-	short i;
+	byte i;
 	for(i=0;n.x!=0||n.y!=0;i++)
 	{
 		if(n.x-n.px==-1&&n.y-n.py==0)
@@ -434,7 +429,8 @@ void buildPath(Node end)
 		}
 		n=grid[n.px][n.py];
 	}
-	short j,temp;
+	byte j;
+	char temp; //This and j both used to be short. I don't know why temp was a short
 	for (j=0;j<i/2;++j)
 	{
 		temp=path[i-j-1];
