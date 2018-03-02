@@ -7,12 +7,11 @@ using namespace std;
 Node grid[16][16]={};
 char facing='u'; //facing up default
 
-void moveOne();
+void moveOne(short row,short col);
 void turnCW();
 void turnCCW();
-void setSpace(short row,short col);
 
-void moveUp()
+void moveUp(short row,short col)
 {
 	if(facing=='r')
 	{
@@ -27,12 +26,12 @@ void moveUp()
 	{
 		turnCCW();
 	}
-	moveOne();
-	facing='u';
+  facing='u';
+	moveOne(row,col);
 	return;
 }
 
-void moveRight()
+void moveRight(short row,short col)
 {
 	if(facing=='u')
 	{
@@ -47,12 +46,12 @@ void moveRight()
 		turnCW();
 		turnCW();
 	}
-	moveOne();
-	facing='r';
+  facing='r';
+	moveOne(row,col);
 	return;
 }
 
-void moveDown()
+void moveDown(short row,short col)
 {
 	if(facing=='u')
 	{
@@ -67,12 +66,12 @@ void moveDown()
 	{
 		turnCCW();
 	}
-	moveOne();
-	facing='d';
+  facing='d';
+	moveOne(row,col);
 	return;
 }
 
-void moveLeft()
+void moveLeft(short row,short col)
 {
 	if(facing=='u')
 	{
@@ -87,8 +86,8 @@ void moveLeft()
 	{
 		turnCW();
 	}
-	moveOne();
-	facing='l';
+  facing='l';
+	moveOne(row,col);
 	return;
 }
 
@@ -172,35 +171,30 @@ void reset()
 void dfsR(short r,short c)
 {
 	grid[r][c].visited=1;
-	setSpace(r,c);
 	//printWalls(r,c);
 	if(grid[r][c].up==0&&grid[r][c-1].visited==0)
 	{
-		moveUp();
-		setSpace(r,c-1);
+		moveUp(r,c-1);
 		dfsR(r,c-1);
-		moveDown();
+		moveDown(r,c);
 	}
 	if(grid[r][c].right==0&&grid[r+1][c].visited==0)
 	{
-		moveRight();
-		setSpace(r+1,c);
+		moveRight(r+1,c);
 		dfsR(r+1,c);
-		moveLeft();
+		moveLeft(r+1,c);
 	}
 	if(grid[r][c].down==0&&grid[r][c+1].visited==0)
 	{
-		moveDown();
-		setSpace(r,c+1);
+		moveDown(r,c+1);
 		dfsR(r,c+1);
-		moveUp();
+		moveUp(r,c+1);
 	}
 	if(grid[r][c].left==0&&grid[r-1][c].visited==0)
 	{
-		moveLeft();
-		setSpace(r-1,c);
+		moveLeft(r-1,c);
 		dfsR(r-1,c);
-		moveRight();
+		moveRight(r-1,c);
 	}
 }
 
@@ -216,21 +210,20 @@ void dfs()
 //		cout<<"curr: ("<<curr.x<<","<<curr.y<<")"<<endl;
 		if(curr.x-grid[curr.x][curr.y].px==-1&&grid[curr.x][curr.y].visited!=1)
 		{
-			moveLeft();
+			moveLeft(curr.x,curr.y); //maybe need to flip args
 		}
 		else if(curr.x-grid[curr.x][curr.y].px==1&&grid[curr.x][curr.y].visited!=1)
 		{
-			moveRight();
+			moveRight(curr.x,curr.y);
 		}
 		else if(curr.y-grid[curr.x][curr.y].py==1&&grid[curr.x][curr.y].visited!=1)
 		{
-			moveDown();
+			moveDown(curr.x,curr.y);
 		}
 		else if(curr.y-grid[curr.x][curr.y].py==-1&&grid[curr.x][curr.y].visited!=1)
 		{
-			moveUp();
+			moveUp(curr.x,curr.y);
 		}
-		setSpace(curr.x,curr.y);
 		grid[curr.x][curr.y].visited=1;
 		byte count=0;
 		if(curr.x<16&&curr.x>=0&&curr.y-1<16&&curr.y-1>=0&&grid[curr.x][curr.y-1].visited==0&&grid[curr.x][curr.y].up==0)
@@ -282,19 +275,19 @@ void dfs()
 //				cout<<"curr: ("<<temp.x<<","<<temp.y<<")"<<endl;
 				if(temp.x-grid[temp.x][temp.y].px==-1)
 				{
-					moveRight();
+					moveRight(0,0);
 				}
 				else if(temp.x-grid[temp.x][temp.y].px==1)
 				{
-					moveLeft();
+					moveLeft(0,0);
 				}
 				else if(temp.y-grid[temp.x][temp.y].py==1)
 				{
-					moveUp();
+					moveUp(0,0);
 				}
 				else if(temp.y-grid[temp.x][temp.y].py==-1)
 				{
-					moveDown();
+					moveDown(0,0);
 				}
 				temp=his.pop();
 			}
@@ -441,19 +434,19 @@ void buildPath(Node end)
 	{
 		if(path[j]=='u')
 		{
-			moveUp();
+			moveUp(0,0);
 		}
 		else if(path[j]=='r')
 		{
-			moveRight();
+			moveRight(0,0);
 		}
 		else if(path[j]=='d')
 		{
-			moveDown();
+			moveDown(0,0);
 		}
 		else if(path[j]=='l')
 		{
-			moveLeft();
+			moveLeft(0,0);
 		}
 	}
 }
