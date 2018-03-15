@@ -7,11 +7,12 @@ using namespace std;
 Node grid[16][16]={};
 char facing='u'; //facing up default
 
-void moveOne(short row,short col);
+void moveOne();
 void turnCW();
 void turnCCW();
+void setSpace(short row,short col);
 
-void moveUp(short row,short col)
+void moveUp()
 {
 	if(facing=='r')
 	{
@@ -27,11 +28,11 @@ void moveUp(short row,short col)
 		turnCCW();
 	}
   facing='u';
-	moveOne(row,col);
+	moveOne();
 	return;
 }
 
-void moveRight(short row,short col)
+void moveRight()
 {
 	if(facing=='u')
 	{
@@ -47,11 +48,11 @@ void moveRight(short row,short col)
 		turnCW();
 	}
   facing='r';
-	moveOne(row,col);
+	moveOne();
 	return;
 }
 
-void moveDown(short row,short col)
+void moveDown()
 {
 	if(facing=='u')
 	{
@@ -67,11 +68,11 @@ void moveDown(short row,short col)
 		turnCCW();
 	}
   facing='d';
-	moveOne(row,col);
+	moveOne();
 	return;
 }
 
-void moveLeft(short row,short col)
+void moveLeft()
 {
 	if(facing=='u')
 	{
@@ -87,7 +88,7 @@ void moveLeft(short row,short col)
 		turnCW();
 	}
   facing='l';
-	moveOne(row,col);
+	moveOne();
 	return;
 }
 
@@ -112,7 +113,6 @@ void inity()
 			grid[i][j].y=j;
 		}
 	}
-	//add testing maze (hopefully not manually)
 /*
 	grid[0][0].up=1;
 	grid[0][0].left=1;
@@ -132,7 +132,6 @@ void inity()
 	grid[1][0].left=1;
 	grid[1][0].up=1;
 	grid[1][0].right=1;
-*/
 	
 	grid[0][0].up=1;
 	grid[0][0].right=1;
@@ -152,7 +151,7 @@ void inity()
 	grid[2][1].right=1;
 	grid[2][2].right=1;
 	grid[2][2].down=1;
-
+*/
 }
 
 void reset()
@@ -174,30 +173,35 @@ void dfsR(short r,short c)
 	//printWalls(r,c);
 	if(grid[r][c].up==0&&grid[r][c-1].visited==0)
 	{
-		moveUp(r,c-1);
+		moveUp();
+    setSpace(r,c-1);
 		dfsR(r,c-1);
-		moveDown(r,c);
+		moveDown();
 	}
 	if(grid[r][c].right==0&&grid[r+1][c].visited==0)
 	{
-		moveRight(r+1,c);
+		moveRight();
+    setSpace(r+1,c);
 		dfsR(r+1,c);
-		moveLeft(r+1,c);
+		moveLeft();
 	}
 	if(grid[r][c].down==0&&grid[r][c+1].visited==0)
 	{
-		moveDown(r,c+1);
+		moveDown();
+    setSpace(r,c+1);
 		dfsR(r,c+1);
-		moveUp(r,c+1);
+		moveUp();
 	}
 	if(grid[r][c].left==0&&grid[r-1][c].visited==0)
 	{
-		moveLeft(r-1,c);
+		moveLeft();
+    setSpace(r-1,c);
 		dfsR(r-1,c);
-		moveRight(r-1,c);
+		moveRight();
 	}
 }
 
+//don't use
 void dfs()
 {
 	Stack s;
@@ -210,20 +214,21 @@ void dfs()
 //		cout<<"curr: ("<<curr.x<<","<<curr.y<<")"<<endl;
 		if(curr.x-grid[curr.x][curr.y].px==-1&&grid[curr.x][curr.y].visited!=1)
 		{
-			moveLeft(curr.x,curr.y); //maybe need to flip args
+			moveLeft(); //maybe need to flip args
 		}
 		else if(curr.x-grid[curr.x][curr.y].px==1&&grid[curr.x][curr.y].visited!=1)
 		{
-			moveRight(curr.x,curr.y);
+			moveRight();
 		}
 		else if(curr.y-grid[curr.x][curr.y].py==1&&grid[curr.x][curr.y].visited!=1)
 		{
-			moveDown(curr.x,curr.y);
+			moveDown();
 		}
 		else if(curr.y-grid[curr.x][curr.y].py==-1&&grid[curr.x][curr.y].visited!=1)
 		{
-			moveUp(curr.x,curr.y);
+			moveUp();
 		}
+    setSpace(curr.x,curr.y);
 		grid[curr.x][curr.y].visited=1;
 		byte count=0;
 		if(curr.x<16&&curr.x>=0&&curr.y-1<16&&curr.y-1>=0&&grid[curr.x][curr.y-1].visited==0&&grid[curr.x][curr.y].up==0)
@@ -275,19 +280,19 @@ void dfs()
 //				cout<<"curr: ("<<temp.x<<","<<temp.y<<")"<<endl;
 				if(temp.x-grid[temp.x][temp.y].px==-1)
 				{
-					moveRight(0,0);
+					moveRight();
 				}
 				else if(temp.x-grid[temp.x][temp.y].px==1)
 				{
-					moveLeft(0,0);
+					moveLeft();
 				}
 				else if(temp.y-grid[temp.x][temp.y].py==1)
 				{
-					moveUp(0,0);
+					moveUp();
 				}
 				else if(temp.y-grid[temp.x][temp.y].py==-1)
 				{
-					moveDown(0,0);
+					moveDown();
 				}
 				temp=his.pop();
 			}
@@ -330,7 +335,7 @@ void dfs()
 
 Node astar()
 {
-	Node end;
+	Node endd;
 	grid[0][0].g=0;
 	Heap fringe;
 	fringe.push(grid[0][0]);
@@ -394,12 +399,12 @@ Node astar()
 			}
 		}
 	}
-	return end;	
+	return endd;	
 }
 
-void buildPath(Node end)
+void buildPath(Node endd)
 {
-	Node n=end;
+	Node n=endd;
 	char path[100];
 	byte i;
 	for(i=0;n.x!=0||n.y!=0;i++)
@@ -434,19 +439,19 @@ void buildPath(Node end)
 	{
 		if(path[j]=='u')
 		{
-			moveUp(0,0);
+			moveUp();
 		}
 		else if(path[j]=='r')
 		{
-			moveRight(0,0);
+			moveRight();
 		}
 		else if(path[j]=='d')
 		{
-			moveDown(0,0);
+			moveDown();
 		}
 		else if(path[j]=='l')
 		{
-			moveLeft(0,0);
+			moveLeft();
 		}
 	}
 }

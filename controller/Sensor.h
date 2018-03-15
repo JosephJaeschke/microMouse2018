@@ -5,7 +5,7 @@ class Sensor
   float ema_a;
   float ema_ema;
   float ema;
-  short threshold;
+  short thresholdd;
   float DEMA;
   float curr;
   Sensor(byte p,short t)
@@ -14,18 +14,29 @@ class Sensor
     ema=0;
     ema_a=0.06;
     ema_ema=0;
-    threshold=t;
+    thresholdd=t;
     DEMA=0;
     curr=0;
   }
-  void set()
+  void initS(byte p,short t)
   {
-    ema_func(curr);
+    pin=p;
+    ema=0;
+    ema_a=0.06;
+    ema_ema=0;
+    thresholdd=t;
+    DEMA=0;
+    curr=0;
+  }
+  void sett(float c)
+  {
+    ema_func(c);
     ema_ema_func();
     DEMA=2*ema-ema_ema;
+    Serial.printf("(%f) ",DEMA);
   }
   private:
-  void ema_func(short curr)
+  void ema_func(float curr)
   {
     ema=(ema_a*curr+(1-ema_a)*ema);
   }

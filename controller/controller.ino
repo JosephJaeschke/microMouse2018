@@ -1,15 +1,14 @@
 #include "mapAndSolve.h"
 #include "Sensor.h"
-Sensor left(1,160);
-Sensor right(2,160);
-Sensor front(0,160);
+Sensor left(A3,160); //second param is threshold (change in setup() too)
+Sensor right(A4,160);
+Sensor front(A9,160);
 
-void moveOne(short row,short col)
+void moveOne()
 {
   //digitalWrite(STBY,HIGH);
   //...
   //digitalWrite(STBY,LOW);
-  readIR(row,col);
   return;
 }
 
@@ -23,15 +22,12 @@ void turnCCW()
   return;
 }
 
-void readIR(short row,short col)
+void setSpace(short row,short col)
 {
-  front.curr=analogRead(front.pin);
-  left.curr=analogRead(left.pin);
-  right.curr=analogRead(right.pin);
-  front.set();
-  left.set();
-  right.set();
-  if(front.DEMA>front.threshold&&grid[row][col].visited==0)
+  front.sett(analogRead(front.pin));
+  left.sett(analogRead(left.pin));
+  right.sett(analogRead(right.pin));
+  if(front.DEMA>front.thresholdd&&grid[row][col].visited==0)
   {
     if(facing=='u')
     {
@@ -50,7 +46,7 @@ void readIR(short row,short col)
       grid[row][col].left=1;
     }
   }
-  if(left.DEMA>left.threshold&&grid[row][col].visited==0)
+  if(left.DEMA>left.thresholdd&&grid[row][col].visited==0)
   {
     if(facing=='u')
     {
@@ -69,7 +65,7 @@ void readIR(short row,short col)
       grid[row][col].down=1;
     }
   }
-  if(right.DEMA>right.threshold&&grid[row][col].visited==0)
+  if(right.DEMA>right.thresholdd&&grid[row][col].visited==0)
   {
     if(facing=='u')
     {
@@ -93,16 +89,53 @@ void readIR(short row,short col)
 void setup()
 {
   Serial.begin(9600);
-  pinMode(0,INPUT);
-  pinMode(1,INPUT);
-  pinMode(2,INPUT);
-
+  pinMode(A3,INPUT);
+  pinMode(A4,INPUT);
+  pinMode(A9,INPUT);
+  left.initS(A3,160);
+  right.initS(A4,160);
+  front.initS(A9,160);
   return;
+}
+
+void readIR()
+{
+  left.sett(analogRead(left.pin));
+  front.sett(analogRead(front.pin));
+  right.sett(analogRead(right.pin));
+  if(left.DEMA>left.thresholdd)
+  {
+
+    Serial.printf("1 ");
+    
+  }
+  else
+  {
+    Serial.printf("0 ");
+  }
+  if(front.DEMA>front.thresholdd)
+  {
+    Serial.printf("1 ");
+  }
+  else
+  {
+    Serial.printf("0 ");
+  }
+  if(right.DEMA>right.thresholdd)
+  {
+    Serial.printf("1 \n");
+  }
+  else
+  {
+    Serial.printf("0\n");
+  }
 }
 
 void loop()
 {
-  readIR(0,0);
+  readIR();
+  delay(250);
+//  setSpace(0,0);
 //  inity();
 //  dfsR(0,0);
 //  reset();
