@@ -154,7 +154,7 @@ void inity()
 */
 }
 
-void reset()
+void resett()
 {
 	for(byte i=0;i<16;i++)
 	{

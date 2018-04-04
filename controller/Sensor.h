@@ -30,10 +30,11 @@ class Sensor
   }
   void sett(float c)
   {
+    //Serial.printf("[%f]",c);
     ema_func(c);
     ema_ema_func();
     DEMA=2*ema-ema_ema;
-    Serial.printf("(%f) ",DEMA);
+    //Serial.printf("(%f) ",DEMA);
   }
   private:
   void ema_func(float curr)
