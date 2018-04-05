@@ -297,17 +297,22 @@ void loop()
   Serial.printf("[%d , %d]\n",leftCount,rightCount);
   delay(10);
   */
+
+  //ir pid test
+  setSpace(0,0);
+  moveOne();
   
+  /*
   //turn test
   moveOne();
-  //turnCCW();
-  //turnCCW();
-  //delay(500);
-  //moveOne();
-  //turnCW();
-  //turnCW();
+  turnCCW();
+  turnCCW();
   delay(500);
-  
+  moveOne();
+  turnCW();
+  turnCW();
+  delay(500);
+  */
   /*
   //real code
   setSpace(0,0);
