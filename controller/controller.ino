@@ -19,59 +19,74 @@
 
 #define CIRC 3.14159265359*38.5 //from last year
 #define TICKSPROT 174 //ticks per rotation (from last year)
-#define SPEED 40
+#define SPEED 50
 
-PID pid=PID(2.0,5.0,3.0);
+PID pid=PID(0,0,0);
+PID irPID=PID(0,0,0);
 volatile int leftCount=0,rightCount=0;
+int prevR=0,prevL=0;
+bool use_enc=true;
 
-Sensor left(IRL,160); //second param is threshold (change in setup() too)
-Sensor right(IRR,160);
-Sensor front(IRF,140);
+Sensor left(0,0); 
+Sensor right(0,0);
+Sensor front(0,0);
 
-short blocks=0;//how many spaces traveled
-
-///////////////////////////////////////////
-void leftEncoderEvent() {
-  //Serial.printf("YO\n");
-  if (digitalRead(LEOA) == HIGH) {
-    if (digitalRead(LEOB) == LOW) {
+void leftEncoderEvent() 
+{
+  if(digitalRead(LEOA)==HIGH)
+  {
+    if(digitalRead(LEOB)==LOW)
+    {
       leftCount++;
-    } else {
+    }
+    else
+    {
       leftCount--;
     }
-  } else {
-    if (digitalRead(LEOB) == LOW) {
+  } 
+  else
+  {
+    if(digitalRead(LEOB)==LOW)
+    {
       leftCount--;
-    } else {
+    }
+    else 
+    {
       leftCount++;
     }
   }
 }
 
-void rightEncoderEvent() {
-  //rightCount=rightCount*-1;
-  if (digitalRead(REOA) == HIGH) {
-    if (digitalRead(REOB) == LOW) {
+void rightEncoderEvent() 
+{
+  if(digitalRead(REOA)==HIGH)
+  {
+    if(digitalRead(REOB)==LOW)
+    {
       rightCount++;
-    } else {
+    }
+    else
+    {
       rightCount--;
     }
-  } else {
-    if (digitalRead(REOB) == LOW) {
+  } 
+  else
+  {
+    if(digitalRead(REOB)==LOW)
+    {
       rightCount--;
-    } else {
+    }
+    else
+    {
       rightCount++;
     }
   }
-  //rightCount=rightCount*-1;
-
 }
-////////////////////////////////////////////
 
 float distance()
 {
-  float distR=abs((float)rightCount*CIRC/TICKSPROT);
-  float distL=abs((float)leftCount*CIRC/TICKSPROT);
+  float distR=abs((float)(rightCount-prevR)*CIRC/TICKSPROT);
+  float distL=abs((float)(leftCount-prevL)*CIRC/TICKSPROT);
   return ((distR+distL)/2)/10;
 
 }
@@ -83,18 +98,28 @@ void moveOne()
   digitalWrite(BIN1,HIGH);
   digitalWrite(BIN2,LOW);
   digitalWrite(STBY,HIGH);
-  while(distance()<17.0)
+  if(use_enc)
   {
-    short error=leftCount-rightCount;
-    float diff=pid.compute(error);
-    int adjust=SPEED-diff;
-    adjust=constrain(adjust,0,255);
-    analogWrite(PWMB,adjust);
-    delay(10);
+    while(distance()<17.0)
+    {
+      short error=leftCount-rightCount;
+      float diff=pid.compute(error);
+      int adjust=SPEED-diff;
+      adjust=constrain(adjust,0,255);
+      analogWrite(PWMB,adjust);
+      delay(10);
+    }
   }
-  rightCount=0;
-  leftCount=0;
+  else
+  {
+    while(distance()<17.0)
+    {
+      //spin
+    }
+  }
   digitalWrite(STBY,LOW);
+  prevR=rightCount;
+  prevL=leftCount;
 }
 
 void turnCW()
@@ -104,10 +129,18 @@ void turnCW()
   digitalWrite(BIN1,HIGH);
   digitalWrite(BIN2,LOW);
   digitalWrite(STBY,HIGH);
-  delay(420);//experimental
-  digitalWrite(STBY,LOW);
   rightCount=0;
   leftCount=0;
+  while(rightCount>-100&&leftCount<100)//double check
+  {
+    //spin
+  }
+  digitalWrite(STBY,LOW);
+  delay(10);
+  rightCount=0;
+  leftCount=0;
+  prevR=0;
+  prevL=0;
 }
 
 void turnCCW()
@@ -117,17 +150,24 @@ void turnCCW()
   digitalWrite(BIN1,LOW);
   digitalWrite(BIN2,HIGH);
   digitalWrite(STBY,HIGH);
-  delay(390);//experimental
-  digitalWrite(STBY,LOW);
   rightCount=0;
   leftCount=0;
+  while(rightCount<115&&leftCount>-115)//double check
+  {
+    //spin
+  }
+  digitalWrite(STBY,LOW);
+  delay(10);
+  rightCount=0;
+  leftCount=0;
+  prevR=0;
+  prevL=0;
 }
-
 
 void setSpace(short row,short col)
 {
   int i;
-  for(i=0;i<10;i++)
+  for(i=0;i<20;i++)
   {
     front.sett(analogRead(front.pin));
     left.sett(analogRead(left.pin));
@@ -206,32 +246,22 @@ void setSpace(short row,short col)
       grid[row][col].up=1;
     }
   }
-  if(rwall&&lwall&&blocks>=10)
+  use_enc=true;
+  if(rwall&&lwall)
   {
-   //ir error corection code
-   blocks=0;
-   float error;
-   do
-   {
-      error=left.DEMA-right.DEMA;
-      if(error<0)
-      {
-       //speed up left motor
-      
-      }
-      else if(error>0)
-      {
-        //slow down left motor
-      
-      }
-   }while(abs(error)>30);
+   short error=left.DEMA-right.DEMA;
+   float diff=irPID.compute(error);
+   int adjust=SPEED-diff;
+   adjust=constrain(adjust,0,255);
+   analogWrite(PWMB,adjust);
+   use_enc=false;
   }
-  blocks++;
 }
 
 void setup()
 {
   Serial.begin(9600);
+  pinMode(13,OUTPUT);
   pinMode(PWMA,OUTPUT);
   pinMode(PWMB,OUTPUT);
   pinMode(AIN1,OUTPUT);
@@ -243,6 +273,7 @@ void setup()
   pinMode(REOB,INPUT);
   pinMode(LEOA,INPUT);
   pinMode(LEOB,INPUT);
+  digitalWrite(13,HIGH);
   digitalWrite(AIN1,HIGH);
   digitalWrite(AIN2,LOW);
   digitalWrite(BIN1,HIGH);
@@ -250,21 +281,40 @@ void setup()
   analogWrite(PWMA,SPEED);
   analogWrite(PWMB,SPEED);
   digitalWrite(STBY,LOW);
-  pid.setPID(0.58,0.05,0.55);
+  pid.setPID(3.8,0.1,0.2);
+  irPID.setPID(2.5,0.1,0.2);
   left.initS(IRL,160);
   right.initS(IRR,160);
   front.initS(IRF,140);
   attachInterrupt(digitalPinToInterrupt(LEOA),leftEncoderEvent,CHANGE);
   attachInterrupt(digitalPinToInterrupt(REOA),rightEncoderEvent,CHANGE);
-  return;
 }
 
 void loop()
 {
+  /*
+  //encoder test
+  Serial.printf("[%d , %d]\n",leftCount,rightCount);
+  delay(10);
+  */
+  
+  //turn test
+  moveOne();
+  //turnCCW();
+  //turnCCW();
+  //delay(500);
+  //moveOne();
+  //turnCW();
+  //turnCW();
+  delay(500);
+  
+  /*
+  //real code
   setSpace(0,0);
   inity();
   dfsR(0,0);
   resett();
   buildPath(astar());
-  return;
+  exit(0);
+ */
 }

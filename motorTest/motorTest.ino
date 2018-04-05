@@ -1,53 +1,95 @@
 #include "pid.h"
 
-#define AIN1 2 //right motor is A
-#define AIN2 1
-#define PWMA 4
-#define STBY 5
-#define BIN1 6  //left motor is B
-#define BIN2 7
-#define PWMB 3
-#define REOA 11 //right encoder out A
-#define REOB 10 //right encoder out B
-#define IRF 16  //front IR sensor
-#define IRL 17
-#define IRR 18 
-#define LEOA 8 //left encoder out A
-#define LEOB 9//left encoder out B
+#define AIN1 8 //right motor is A
+#define AIN2 5
+#define PWMA A6
+#define STBY 14
+#define BIN2 6  //left motor is B
+#define BIN1 7
+#define PWMB A7
+#define REOA 12 //right encoder out A
+#define REOB 11 //right encoder out B
+#define IRF A9  //front IR sensor
+#define IRL A3
+#define IRR A4 
+#define LEOA 9 //left encoder out A
+#define LEOB 10//left encoder out B
 
-#define CIRC 3.14159265359*40.12 //from last year
-#define TICKSPROT 615 //ticks per rotation (from last year)
+#define CIRC 3.14159265359*38.5 //from last year
+#define TICKSPROT 174 //ticks per rotation (from last year)
 #define SPEED 40
 
 PID pid=PID(2.0,5.0,3.0);
 volatile int leftCount=0,rightCount=0;
+int prevR=0,prevL;
 
 float distance()
 {
-  float distR=abs((float)rightCount*CIRC/TICKSPROT);
-  float distL=abs((float)leftCount*CIRC/TICKSPROT);
+  float distR=abs((float)(rightCount-prevR)*CIRC/TICKSPROT);
+  float distL=abs((float)(leftCount-prevL)*CIRC/TICKSPROT);
   return ((distR+distL)/2)/10;
 
 }
 
-void travel()
+void moveOne()
 {
-  while(1)
+  digitalWrite(AIN1,HIGH);
+  digitalWrite(AIN2,LOW);
+  digitalWrite(BIN1,HIGH);
+  digitalWrite(BIN2,LOW);
+  digitalWrite(STBY,HIGH);
+  int timeNow=millis();
+  while((millis()-timeNow)<1000)
   {
-    //digitalWrite(STBY,LOW);
+    Serial.print("IN\n");
     short error=leftCount-rightCount;
-    Serial.printf(">e:%d\n",error);
     float diff=pid.compute(error);
-    Serial.printf(">D:%d\n",diff);
     int adjust=SPEED-diff;
     adjust=constrain(adjust,0,255);
-    Serial.printf(">d:%d\n---\n",adjust);
     analogWrite(PWMB,adjust);
-    
-    //digitalWrite(STBY,HIGH);
+    delay(10);
   }
-  //digitalWrite(STBY,LOW);
+  digitalWrite(STBY,LOW);
+  prevR=rightCount;
+  prevL=leftCount;
 }
+
+void turnCW()
+{
+  digitalWrite(AIN1,LOW);
+  digitalWrite(AIN2,HIGH);
+  digitalWrite(BIN1,HIGH);
+  digitalWrite(BIN2,LOW);
+  digitalWrite(STBY,HIGH);
+  rightCount=0;
+  leftCount=0;
+  while(rightCount>-90);
+  {
+    //spin
+  }
+  digitalWrite(STBY,LOW);
+  rightCount=0;
+  leftCount=0;
+}
+
+void turnCCW()
+{
+  digitalWrite(AIN1,HIGH);
+  digitalWrite(AIN2,LOW);
+  digitalWrite(BIN1,LOW);
+  digitalWrite(BIN2,HIGH);
+  digitalWrite(STBY,HIGH);
+  rightCount=0;
+  leftCount=0;
+  while(rightCount<110)
+  {
+    //spin
+  }
+  digitalWrite(STBY,LOW);
+  rightCount=0;
+  leftCount=0;
+}
+
 ///////////////////////////////////////////
 void leftEncoderEvent() {
   //Serial.printf("YO\n");
@@ -88,8 +130,9 @@ void rightEncoderEvent() {
 
 void setup() 
 {
-  pid.setPID(0.5,0.02,0.321); //0.5,0.020,0.321 is quite good
-  Serial.begin(9600);
+  pid.setPID(2.5,0.1,0.2); 
+  pinMode(13,OUTPUT);
+  digitalWrite(13,HIGH);
   pinMode(PWMA,OUTPUT);
   pinMode(PWMB,OUTPUT);
   pinMode(AIN1,OUTPUT);
@@ -101,22 +144,32 @@ void setup()
   pinMode(REOB,INPUT);
   pinMode(LEOA,INPUT);
   pinMode(LEOB,INPUT);
-  digitalWrite(STBY,LOW);
-  analogWrite(PWMA,SPEED);
-  analogWrite(PWMB,SPEED); 
   digitalWrite(AIN1,HIGH);
   digitalWrite(AIN2,LOW);
   digitalWrite(BIN1,HIGH);
   digitalWrite(BIN2,LOW);
-  digitalWrite(STBY,HIGH);
+  analogWrite(PWMA,SPEED);
+  analogWrite(PWMB,SPEED);
+  digitalWrite(STBY,LOW);
+
   attachInterrupt(digitalPinToInterrupt(LEOA),leftEncoderEvent,CHANGE);
   attachInterrupt(digitalPinToInterrupt(REOA),rightEncoderEvent,CHANGE);
 }
 
 void loop()
 {
-  travel();
-  //delay(250);
-  //Serial.printf("[%d,%d]\n",rightCount,leftCount);  
+  //diagnose encoders
+  Serial.printf("[ %d , %d ]\n",leftCount,rightCount);
+  delay(500);
+  /*
+  moveOne();
+  turnCCW();
+  turnCCW();
+  delay(1000);
+  moveOne();
+  turnCW();
+  turnCW();
+  delay(1000);
+  */
 }
 
