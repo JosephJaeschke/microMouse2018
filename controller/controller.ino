@@ -25,7 +25,7 @@ PID pid=PID(0,0,0);
 PID irPID=PID(0,0,0);
 volatile int leftCount=0,rightCount=0;
 int prevR=0,prevL=0;
-bool use_enc=true;
+bool use_enc=false;
 
 Sensor left(0,0); 
 Sensor right(0,0);
@@ -100,7 +100,7 @@ void moveOne()
   digitalWrite(STBY,HIGH);
   if(use_enc)
   {
-    while(distance()<17.0)
+    while(distance()<15.76)
     {
       short error=leftCount-rightCount;
       float diff=pid.compute(error);
@@ -112,9 +112,10 @@ void moveOne()
   }
   else
   {
-    while(distance()<17.0)
+    while(distance()<15.76)
     {
       //spin
+      delay(10);
     }
   }
   digitalWrite(STBY,LOW);
@@ -167,7 +168,7 @@ void turnCCW()
 void setSpace(short row,short col)
 {
   int i;
-  for(i=0;i<20;i++)
+  for(i=0;i<10;i++)
   {
     front.sett(analogRead(front.pin));
     left.sett(analogRead(left.pin));
@@ -189,6 +190,9 @@ void setSpace(short row,short col)
   {
     rwall=1;
   }
+  Serial.printf("Front=%f, ",front.DEMA);
+  Serial.printf("Left=%f, ",left.DEMA);
+  Serial.printf("Right=%f\n---\n",right.DEMA);
   if(fwall&&grid[row][col].visited==0)
   {
     if(facing=='u')
@@ -245,6 +249,7 @@ void setSpace(short row,short col)
     {
       grid[row][col].up=1;
     }
+    delay(1000);
   }
   use_enc=true;
   if(rwall&&lwall)
@@ -285,22 +290,29 @@ void setup()
   irPID.setPID(2.5,0.1,0.2);
   left.initS(IRL,160);
   right.initS(IRR,160);
-  front.initS(IRF,140);
+  front.initS(IRF,300);
   attachInterrupt(digitalPinToInterrupt(LEOA),leftEncoderEvent,CHANGE);
   attachInterrupt(digitalPinToInterrupt(REOA),rightEncoderEvent,CHANGE);
 }
 
 void loop()
 {
+  //VERIFY WALLS ARE BEING SET RIGHT
+  //TUNE IR PID
+  //make sure to check back wall in starting square
+  
   /*
   //encoder test
   Serial.printf("[%d , %d]\n",leftCount,rightCount);
   delay(10);
   */
-
+  
+  /*
   //ir pid test
-  setSpace(0,0);
+  //setSpace(0,0);
   moveOne();
+  exit(0);
+  */
   
   /*
   //turn test
@@ -313,13 +325,25 @@ void loop()
   turnCW();
   delay(500);
   */
-  /*
+  
   //real code
   setSpace(0,0);
+  turnCW();
+  int i;
+  for(i=0;i<10;i++)
+  {
+    right.sett(analogRead(right.pin));
+  }
+  if(right.DEMA>right.thresholdd)
+  {
+    grid[0][0].down=1;
+  }
   inity();
   dfsR(0,0);
   resett();
   buildPath(astar());
-  exit(0);
- */
+  while(1)
+  {
+    turnCW();
+  }
 }
