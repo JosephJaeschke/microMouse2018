@@ -299,7 +299,6 @@ void loop()
 {
   //VERIFY WALLS ARE BEING SET RIGHT
   //TUNE IR PID
-  //make sure to check back wall in starting square
   
   /*
   //encoder test
@@ -327,6 +326,7 @@ void loop()
   */
   
   //real code
+  inity();
   setSpace(0,0);
   turnCW();
   int i;
@@ -338,7 +338,7 @@ void loop()
   {
     grid[0][0].down=1;
   }
-  inity();
+  turnCCW();
   dfsR(0,0);
   resett();
   buildPath(astar());
